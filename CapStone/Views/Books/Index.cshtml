@@ -4,10 +4,10 @@
     ViewBag.Title = "Index";
 }
 
-<h2>Index</h2>
+<h2>Library</h2>
 
-<p>
-    Can't find your book ? @Html.ActionLink("Request Book", "Create","Requests")
+<p align="right">
+    Can't find your book ? @Html.ActionLink("Request Book", "Create","Requests")</p>
 
    @using (Html.BeginForm("Index", "Books", FormMethod.Get))
    {
@@ -18,7 +18,7 @@
     </p>
     }
     
-</p>
+</p><br/><br/><br/>
 <table class="table">
     <tr>
         <th>
