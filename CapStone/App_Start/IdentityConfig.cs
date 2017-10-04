@@ -4,6 +4,9 @@ using System.Data.Entity;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Net;
+using System.Configuration;
+using System.Diagnostics;
 using System.Web;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
@@ -11,17 +14,73 @@ using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
 using Microsoft.Owin.Security;
 using CapStone.Models;
+using SendGrid;
+using SendGrid.Helpers.Mail;
+
+
+
 
 namespace CapStone
 {
     public class EmailService : IIdentityMessageService
     {
-        public Task SendAsync(IdentityMessage message)
+        public async Task SendAsync(IdentityMessage iMessage)
+
         {
-            // Plug in your email service here to send an email.
-            return Task.FromResult(0);
+
+            var client = new SendGridClient("YOUR SENDGRID API KEY"); // https://app.sendgrid.com
+
+            var msg = new SendGridMessage()
+
+            {
+
+                From = new EmailAddress("Tier@Outlook.com", "Tier One"),
+
+                Subject = iMessage.Subject,
+
+                PlainTextContent = iMessage.Body,
+
+                HtmlContent = "<strong>" + iMessage.Body + "</strong>"
+
+            };
+
+            msg.AddTo(new EmailAddress(iMessage.Destination));
+
+            var response = await client.SendEmailAsync(msg);
+
+        }
+
+        // Use NuGet to install SendGrid (Basic C# client lib) 
+        private async Task configSendGridAsync(IdentityMessage message)
+        {
+            var myMessage = new SendGridMessage();
+            myMessage.AddTo(message.Destination);
+            myMessage.From = new EmailAddress("you@somewhere.com", "My name");//here the error Happens
+            myMessage.Subject = message.Subject;
+            myMessage.PlainTextContent = message.Body;
+            myMessage.HtmlContent = message.Body;
+
+            var credentials = new NetworkCredential( 
+                ConfigurationManager.AppSettings["mailAccount"],
+                ConfigurationManager.AppSettings["mailPassword"]
+                       );
+
+            //// Create a Web transport for sending email.
+            ////var transportWeb = new Web(credentials);
+
+            //// Send the email.
+            //if (transportWeb != null)
+            //{
+            //    await transportWeb.DeliverAsync(myMessage);
+            //}
+            //else
+            //{
+            //    Trace.TraceError("Failed to create Web transport.");
+            //    await Task.FromResult(0);
+            //}
         }
     }
+
 
     public class SmsService : IIdentityMessageService
     {
